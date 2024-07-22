@@ -1,0 +1,80 @@
+# Spring boot configuration for Mobile service platform outbound services for SMS, email (TODO anc WhatsApp)
+# author: ezra.k@cestasoft.com
+
+# actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+
+# configuration for the datastore
+datastore:
+  mongodb:
+ #   uri: 'mongodb://mongoadmin:xyzXYZabcABC@localhost:27017/admin'
+   uri: 'mongodb://localhost:27017/bpe-mobileservices-outbound'
+#logging levels
+logging:
+  level:
+    root: INFO
+    com.cestasoft.mobileservices.msp: DEBUG
+
+# spring config
+spring:
+  application:
+    name: 'bpe-mobileservices-outbound'
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    fallback-to-system-locale: true
+
+  # configuration for the mail provider
+  mail:
+    host: 'da16.domains.co.za'
+    password: 'bp3-mob1l3'
+    port: 587
+    properties:
+      mail:
+        debug: true
+        smtp:
+          ssl:
+            checkserveridentity: true
+          auth: true
+          starttls:
+            enable: true
+    protocol: 'smtp'
+    username: 'bpe-mobileservices@pingui.mobi'
+
+  # configuration for amqp messaging
+  rabbitmq:
+    host: 'localhost'
+    port: 5672
+    username: 'guest'
+    password: 'guest'
+    listener:
+      simple:
+        auto-startup: true
+        concurrency: 5
+        max-concurrency: 10
+
+# web server config
+server:
+  port: 8145
+
+outbound:
+  # configuration for the outbound processor
+  processor:
+    batch:
+      max: 1000
+      min: 1
+    error:
+      queue: 'smpp-error-queue'
+  # configuration for the smpp host server we are connecting to
+  smpp:
+    # configuration for the message queues
+    messaging:
+      routing-key: 'bpe-ms-routing-key'
+      queue: 'bpe-ms-queue-inbound'
+      exchange: 'bpe-ms-topic-exchange'
+      bulk: 'bpe-ms-bulk-queue-inbound'
+      multi: 'bpe-ms-multi-queue-inbound'

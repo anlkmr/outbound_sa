@@ -1,0 +1,20 @@
+image: maven:3.6.3-openjdk-17
+
+pipelines:
+  branches:
+    dev-feature-main:
+      - step:
+          name: build-bpe-mobileservices-outbound
+          caches:
+            - maven
+          script:
+            - mvn -U clean package -DskipTests
+            - mvn -B verify --file pom.xml
+          artifacts:
+            download: true
+          after-script:
+            - pipe: atlassian/checkstyle-report:0.3.0
+      - step:
+          name: Security Scan
+          script:
+            - pipe: atlassian/git-secrets-scan:0.5.1
